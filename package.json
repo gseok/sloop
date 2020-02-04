@@ -2,13 +2,18 @@
   "name": "sloop",
   "version": "0.0.1",
   "private": true,
-  "dependencies": {
-  },
-  "scripts": {
-  },
+  "dependencies": {},
+  "scripts": {},
   "devDependencies": {
+    "husky": "^4.2.1"
   },
   "engines": {
     "node": ">=10.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
   }
 }
