@@ -1,4 +1,6 @@
-const commonErrorHandler = async (ctx, next) => {
+import { Context, Next } from 'koa';
+
+const commonErrorHandler = async (ctx: Context, next: Next) => {
   try {
     await next();
   } catch (err) {

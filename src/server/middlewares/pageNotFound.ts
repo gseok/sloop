@@ -1,4 +1,6 @@
-const pageNotFound = async (ctx) => {
+import { Context } from 'koa';
+
+const pageNotFound = async (ctx: Context) => {
   ctx.status = 404;
 
   switch (ctx.accepts('html', 'json')) {

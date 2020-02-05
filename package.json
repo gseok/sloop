@@ -3,20 +3,25 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "dotenv": "^8.2.0",
     "koa": "^2.11.0",
     "koa-router": "^8.0.6",
     "react": "^16.12.0",
     "typescript": "^3.7.5"
   },
   "scripts": {
+    "build:server:dev": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=dev --progress --profile --colors",
+    "build:server:local": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=local --progress --profile --colors",
     "codelint": "eslint . --ext .ts --ext .tsx",
     "codelint:fix": "eslint . --ext .ts --ext .tsx --fix"
   },
   "devDependencies": {
+    "@babel/core": "^7.8.4",
     "@types/koa": "^2.11.0",
     "@types/koa-router": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^2.19.0",
     "@typescript-eslint/parser": "^2.19.0",
+    "babel-loader": "^8.0.6",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^6.10.0",
@@ -26,7 +31,12 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^2.3.0",
     "husky": "^4.2.1",
-    "prettier": "^1.19.1"
+    "nodemon": "^2.0.2",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-node-externals": "^1.7.2"
   },
   "engines": {
     "node": ">=10.0.0"
