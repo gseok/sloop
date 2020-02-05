@@ -10,6 +10,7 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
+    "start:server:local": "nodemon --inspect ./dist/server/server.js",
     "build:server:dev": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=dev --progress --profile --colors",
     "build:server:local": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=local --progress --profile --colors",
     "codelint": "eslint . --ext .ts --ext .tsx",
