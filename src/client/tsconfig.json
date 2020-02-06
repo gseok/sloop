@@ -10,13 +10,24 @@
     "baseUrl": "./",                          /* Base directory to resolve non-absolute module names. */
     "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitReturns": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "allowJs": true,
+    "noEmit": false,
+    "typeRoots" : [
+      "./@types",
+      "../../node_modules/@types/"
+    ]
   },
   "include": [
-    "./index.d.ts"
+    "**/*"
   ]
 }
