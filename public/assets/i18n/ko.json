@@ -1,0 +1,29 @@
+{
+  "SEARCH": {
+    "PLACEHOLDER": "장소, 버스, 지하철, 주소 검색"
+  },
+  "MAP": {
+    "TYPE": {
+      "BASIC": "일반지도",
+      "SATELLITE": "위성지도",
+      "TERRAIN": "지형도"
+    },
+    "LAYER": {
+      "PANORAMA": "거리뷰",
+      "INDOOR": "실내지도",
+      "FAVORITES": "즐겨찾기",
+      "TRAFFIC": "교통정보",
+      "TRANSIT": "대중교통",
+      "CCTV": "CCTV",
+      "BIKE": "자전거",
+      "MOUNTAIN": "등산로",
+      "LAND_PARCEL": "지적편집도"
+    }
+  },
+  "BOTTOM_MENU": {
+    "AROUND": "주변",
+    "TRANSIT": "대중교통",
+    "NAVIGATION": "네비게이션",
+    "DIRECTIONS": "길찾기"
+  }
+}
