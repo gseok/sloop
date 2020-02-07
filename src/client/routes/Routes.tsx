@@ -1,18 +1,16 @@
 import React from 'react';
+import loadable from '@loadable/component';
 import { Route, Switch } from 'react-router';
-import { BrowserRouter } from 'react-router-dom';
 import RoutesPath from '../models/RoutesPath.model';
 
-import Home from '../containers/Home';
-import Search from '../containers/Search';
+const Home = loadable(() => import(/* webpackChunkName: "Home" */ '../containers/Home'));
+const Search = loadable(() => import(/* webpackChunkName: "News" */ '../containers/Search'));
 
 const Routes = () => (
-  <BrowserRouter>
-    <Switch>
-      <Route exact path={RoutesPath.Home} render={() => <Home />} />
-      <Route path={RoutesPath.Search} render={() => <Search />} />
-    </Switch>
-  </BrowserRouter>
+  <Switch>
+    <Route exact path={RoutesPath.Home} render={() => <Home />} />
+    <Route path={RoutesPath.Search} render={() => <Search />} />
+  </Switch>
 );
 
 export default Routes;
