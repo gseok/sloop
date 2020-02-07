@@ -17,7 +17,7 @@ import 'regenerator-runtime/runtime';
 const PORT = 3131;
 const app: Koa = new Koa();
 
-// clinet build for ssr when server local devlop time
+// NOTE: client build for ssr when server local devlop time
 if (process.env.NODE_ENV !== 'production') {
   console.log('Server started development!, Client build...');
 
