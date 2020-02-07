@@ -19,8 +19,10 @@
   },
   "scripts": {
     "clear": "rm -rf dist",
+    "start": "yarn build:local && yarn start:server:local",
     "start:client:local-only": "webpack-dev-server --config ./scripts/build-scripts/webpack.config.js --env.target=client-only --env.phase=local --progress --profile --colors",
     "start:server:local": "nodemon --inspect ./dist/server/server.js",
+    "build:local": "yarn clear && yarn build:client:local && yarn build:server:local",
     "build:client:local": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=client --env.phase=local --progress --profile --colors",
     "build:server:local": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=local --progress --profile --colors",
     "build:server:dev": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=dev --progress --profile --colors",
