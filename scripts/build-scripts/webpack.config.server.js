@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const rootPath = path.resolve(__dirname, '..', '..');
 const DEFAULT_MODE = 'development';
@@ -20,7 +21,7 @@ module.exports = (env) => {
     },
 
     entry: {
-      server: path.resolve(rootPath, 'src/server/server.ts'),
+      server: path.resolve(rootPath, 'src/server/server.tsx'),
     },
     output: {
       path: path.resolve(rootPath, 'dist/server'),
@@ -42,5 +43,7 @@ module.exports = (env) => {
     },
 
     externals: [nodeExternals()],
+
+    plugins: [new CleanWebpackPlugin()],
   };
 };
