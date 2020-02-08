@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router';
 import RoutesPath from '../models/RoutesPath.model';
 
 const Home = loadable(() => import(/* webpackChunkName: "Home" */ '../containers/Home'));
-const Search = loadable(() => import(/* webpackChunkName: "News" */ '../containers/Search'));
+const Search = loadable(() => import(/* webpackChunkName: "Search" */ '../containers/Search'));
 
 const Routes = () => (
   <Switch>

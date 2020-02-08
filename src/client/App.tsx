@@ -2,9 +2,13 @@ import React from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Routes from './routes/Routes';
 
+import css from './App.module.scss';
+
 const App = () => (
   <ErrorBoundary>
-    <Routes />
+    <div className={css.App}>
+      <Routes />
+    </div>
   </ErrorBoundary>
 );
 
