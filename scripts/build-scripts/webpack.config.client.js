@@ -20,14 +20,19 @@ const rootPath = path.resolve(__dirname, '..', '..');
 const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
-const getEntry = (target) => {
-  return target === 'node'
-    ? [path.resolve(rootPath, 'src/client/App.tsx')]
-    : [hotMiddlewareScript, path.resolve(rootPath, 'src/client/index.tsx')];
+const getEntry = (target, mode) => {
+  if (target === 'node') {
+    return [path.resolve(rootPath, 'src/client/App.tsx')];
+  }
+
+  if (mode === DEFAULT_MODE) {
+    return [hotMiddlewareScript, path.resolve(rootPath, 'src/client/index.tsx')];
+  }
+  return [path.resolve(rootPath, 'src/client/index.tsx')];
 };
 
 const getConfig = (target, env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '' } = env;
+  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', SSR_TYPE = 'stream' } = env;
 
   return {
     target,
@@ -36,7 +41,7 @@ const getConfig = (target, env) => {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
     devtool: GENERATE_SOURCEMAP,
 
-    entry: getEntry(target),
+    entry: getEntry(target, NODE_ENV),
     output: {
       path: path.resolve(rootPath, 'dist/client', target),
       publicPath: '/',
@@ -64,10 +69,15 @@ const getConfig = (target, env) => {
         {
           test: /\.module\.(scss|sass)$/,
           use: [
-            {
-              loader: ServerMiniCssExtractPlugin.loader,
-            },
-            // { loader: 'style-loader' }, // to inject the result into the DOM as a style block
+            (() => {
+              if (SSR_TYPE === 'stream' && target === 'web') {
+                return { loader: 'style-loader' }; // to inject the result into the DOM as a style block
+              }
+
+              return {
+                loader: ServerMiniCssExtractPlugin.loader,
+              };
+            })(),
             {
               loader: 'css-loader',
               options: { importLoaders: 1, modules: true },
@@ -83,10 +93,16 @@ const getConfig = (target, env) => {
       extensions: ['.js', 'jsx', '.ts', '.tsx', '.css', '.scss'],
     },
 
-    plugins:
-      target === 'node'
-        ? [new ServerMiniCssExtractPlugin(), new LoadablePlugin()]
-        : [new ServerMiniCssExtractPlugin(), new LoadablePlugin(), new webpack.HotModuleReplacementPlugin()],
+    plugins: (() => {
+      if (target === 'node') {
+        return [new ServerMiniCssExtractPlugin(), new LoadablePlugin()];
+      }
+
+      if (NODE_ENV === DEFAULT_MODE) {
+        return [new ServerMiniCssExtractPlugin(), new LoadablePlugin(), new webpack.HotModuleReplacementPlugin()];
+      }
+      return [new ServerMiniCssExtractPlugin(), new LoadablePlugin()];
+    })(),
 
     externals: target === 'node' ? ['@loadable/component', nodeExternals()] : undefined,
   };

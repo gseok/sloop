@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const ReplacePlugin = require('webpack-plugin-replace');
 
 const rootPath = path.resolve(__dirname, '..', '..');
 const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
 module.exports = (env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '' } = env;
+  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', SSR_TYPE = 'stream' } = env;
 
   return {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
@@ -42,5 +43,13 @@ module.exports = (env) => {
     },
 
     externals: [nodeExternals()],
+
+    plugins: [
+      new ReplacePlugin({
+        values: {
+          SSR_STREAM: SSR_TYPE === 'stream' ? 'stream' : '',
+        },
+      }),
+    ],
   };
 };
