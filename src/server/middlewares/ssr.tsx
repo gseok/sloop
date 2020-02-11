@@ -19,22 +19,21 @@ const ssr: Middleware = async (ctx: Context) => {
   );
 
   const html = renderToString(jsx);
-
-  ctx.body = `
+  const template = `
+    <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, user-scalable=no" />
         <meta name="google" content="notranslate" />
-        ${webExtractor.getLinkTags()}
         ${webExtractor.getStyleTags()}
       </head>
       <body>
         <!-- ssr rendering...!!! -->
         <div id="root">${html}</div>
-        ${webExtractor.getScriptTags()}
       </body>
     </html>
   `;
+  ctx.body = template;
 };
 
 export default ssr;

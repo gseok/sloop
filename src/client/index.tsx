@@ -5,16 +5,24 @@ import { loadableReady } from '@loadable/component';
 
 import App from './App';
 
-loadableReady(() => {
-  const rootElement = document.getElementById('root');
-  ReactDOM.hydrate(
+// client only run has module.hot
+const rootElement = document.getElementById('root');
+if (module.hot) {
+  ReactDOM.render(
     <BrowserRouter>
       <App />
     </BrowserRouter>,
     rootElement,
   );
-});
 
-if (module.hot) {
   module.hot.accept();
+} else {
+  loadableReady(() => {
+    ReactDOM.hydrate(
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>,
+      rootElement,
+    );
+  });
 }
