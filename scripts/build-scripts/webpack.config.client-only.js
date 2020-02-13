@@ -9,7 +9,7 @@ const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
 module.exports = (env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '' } = env;
+  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', phase } = env;
 
   return {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
@@ -49,7 +49,23 @@ module.exports = (env) => {
                 configFile: path.resolve(rootPath, 'src/client/tsconfig.json'),
               },
             },
-          ],
+            {
+              loader: 'string-replace-loader',
+              options: {
+                multiple: [{ search: 'CURRENT_PHASE', replace: phase }],
+              },
+            },
+            (() => {
+              if (phase !== 'real') return null;
+              return {
+                loader: 'webpack-strip-block',
+                options: {
+                  start: 'develblock:start',
+                  end: 'develblock:end',
+                },
+              };
+            })(),
+          ].filter((data) => !!data),
         },
         {
           test: /\.module\.(scss|sass)$/,

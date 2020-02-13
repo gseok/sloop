@@ -2,8 +2,9 @@ import path from 'path';
 import { Middleware, Context } from 'koa';
 import React from 'react';
 import { StaticRouter } from 'react-router';
-import { renderToString } from 'react-dom/server';
+import { renderToNodeStream, renderToString } from 'react-dom/server';
 import { ChunkExtractor } from '@loadable/server';
+import { useSSRStream } from '../setting';
 
 const ssr: Middleware = async (ctx: Context) => {
   const nodeStats = path.resolve(__dirname, '../client/node/loadable-stats.json');
@@ -18,22 +19,59 @@ const ssr: Middleware = async (ctx: Context) => {
     </StaticRouter>,
   );
 
-  const html = renderToString(jsx);
-  const template = `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, user-scalable=no" />
-        <meta name="google" content="notranslate" />
-        ${webExtractor.getStyleTags()}
-      </head>
-      <body>
-        <!-- ssr rendering...!!! -->
-        <div id="root">${html}</div>
-      </body>
-    </html>
-  `;
-  ctx.body = template;
+  const useStream = useSSRStream;
+
+  if (useStream) {
+    console.log('stream.....');
+    ctx.status = 200; // ssr response status
+    ctx.respond = false; // use stream
+    const htmlStream = renderToNodeStream(jsx);
+
+    const beforeTemplate = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta name="viewport" content="width=device-width, user-scalable=no" />
+          <meta name="google" content="notranslate" />
+          ${webExtractor.getStyleTags()}
+        </head>
+        <body>
+          <!-- ssr rendering...!!! -->
+          <div id="root">`;
+
+    ctx.res.write(beforeTemplate);
+    htmlStream.pipe(ctx.res, { end: false });
+    htmlStream.on('end', () => {
+      const afterTemplate = `</div>
+          <script type="text/javascript">window.__INITIAL_DATA__ = ${JSON.stringify({})}</script>
+          ${webExtractor.getScriptTags()}
+          </body>
+        </html>
+      `;
+      ctx.res.write(afterTemplate);
+      ctx.res.end();
+    });
+  } else {
+    console.log('string...!!!!!');
+    const html = renderToString(jsx);
+    const template = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta name="viewport" content="width=device-width, user-scalable=no" />
+          <meta name="google" content="notranslate" />
+          ${webExtractor.getStyleTags()}
+          ${webExtractor.getLinkTags()}
+        </head>
+        <body>
+          <!-- ssr rendering...!!! -->
+          <div id="root">${html}</div>
+          ${webExtractor.getScriptTags()}
+        </body>
+      </html>
+    `;
+    ctx.body = template;
+  }
 };
 
 export default ssr;

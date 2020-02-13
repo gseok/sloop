@@ -8,6 +8,7 @@ import ssr from './middlewares/ssr';
 import commonErrorHandler from './middlewares/commonErrorHandler';
 import pageNotFound from './middlewares/pageNotFound';
 import router from './routes';
+import { currentPhase } from './setting';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
@@ -19,7 +20,10 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('Server started development!, Client build...');
 
   const webpack = require('webpack');
-  const webpackConfig = require('../../scripts/build-scripts/webpack.config.client.js')(process.env);
+  const webpackConfig = require('../../scripts/build-scripts/webpack.config.client.js')({
+    ...process.env,
+    phase: currentPhase,
+  });
   const compiler = webpack(webpackConfig);
 
   const e2k = require('express-to-koa');
@@ -65,11 +69,7 @@ app.listen(PORT, () => {
 });
 
 // TODOS
-// 1. real build 에서 hmr 제거
-// 2. real build시 extract한 css을 하나의 위치로 나오게 변경
-// 3. local build시에는 style-loader을 사용하게 변경
-// 4. 서버 logger 도입 필요, 일단 logger로 만들고, Nelo는 차후 연결(별도이슈로)
-// 5. dev, stg, test, real 4가지 서버 구성을 전제로, 각 환경에 맞는 setting값을 사용핳 수 있도록 변경
-//    - 이때 client는 koa에 rest로 api을 호출하고, koa에서 환경에 맞는 setting이용하게함
-// 6. 빌드 스크립트를 wrap 하여 좀더 간략하게 변경 필요 webpack을 programing형태로 구동
-// 7. real의 css extract의 이름에 hash 추가 & css을 single file화 하는 방법 연구
+// 1. real build시 extract한 css을 하나의 위치로 나오게 변경(build env optional로 구동되게함)
+// 3. 서버 logger 도입 필요, 일단 logger로 만들고, Nelo는 차후 연결(별도이슈로)
+// 5. 빌드 스크립트를 wrap 하여 좀더 간략하게 변경 필요 webpack을 programing형태로 구동
+// 6. real의 css extract의 이름에 hash 추가 & css을 single file화 하는 방법 연구

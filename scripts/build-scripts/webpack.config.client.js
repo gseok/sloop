@@ -8,26 +8,35 @@ const nodeExternals = require('webpack-node-externals');
 const LoadablePlugin = require('@loadable/webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-class ServerMiniCssExtractPlugin extends MiniCssExtractPlugin {
-  getCssChunkObject(mainChunk) {
-    return {};
-  }
-}
-
 const hotMiddlewareScript = `webpack-hot-middleware/client?name=web&path=/__webpack_hmr&timeout=20000&reload=true`;
 
 const rootPath = path.resolve(__dirname, '..', '..');
 const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
-const getEntry = (target) => {
-  return target === 'node'
-    ? [path.resolve(rootPath, 'src/client/App.tsx')]
-    : [hotMiddlewareScript, path.resolve(rootPath, 'src/client/index.tsx')];
+const getEntry = (target, mode, useHash) => {
+  if (target === 'node') {
+    return [path.resolve(rootPath, 'src/client/App.tsx')];
+  }
+
+  if (mode === DEFAULT_MODE && !useHash) {
+    return [hotMiddlewareScript, path.resolve(rootPath, 'src/client/index.tsx')];
+  }
+  return [path.resolve(rootPath, 'src/client/index.tsx')];
 };
 
 const getConfig = (target, env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '' } = env;
+  const {
+    NODE_ENV = DEFAULT_MODE,
+    GENERATE_SOURCEMAP = '',
+    GENERATE_SOURCE_NAME = 'normal',
+    GENERATE_STYLE = 'inline',
+    SSR_TYPE = 'stream',
+    phase,
+  } = env;
+
+  const outputFileName = `[name]${GENERATE_SOURCE_NAME === 'hash' ? '.[hash]' : ''}.js`;
+  const outputStyleFileName = `[name]${GENERATE_SOURCE_NAME === 'hash' ? '.[hash]' : ''}.css`;
 
   return {
     target,
@@ -36,12 +45,12 @@ const getConfig = (target, env) => {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
     devtool: GENERATE_SOURCEMAP,
 
-    entry: getEntry(target),
+    entry: getEntry(target, NODE_ENV, GENERATE_SOURCE_NAME === 'hash'),
     output: {
       path: path.resolve(rootPath, 'dist/client', target),
       publicPath: '/',
-      filename: '[name].js',
-      chunkFilename: '[name].js',
+      filename: outputFileName,
+      chunkFilename: outputFileName,
       libraryTarget: target === 'node' ? 'commonjs2' : undefined,
     },
 
@@ -59,22 +68,43 @@ const getConfig = (target, env) => {
                 configFile: path.resolve(rootPath, 'src/client/tsconfig.json'),
               },
             },
-          ],
+            {
+              loader: 'string-replace-loader',
+              options: {
+                multiple: [{ search: 'CURRENT_PHASE', replace: phase }],
+              },
+            },
+            (() => {
+              if (phase !== 'real') return null;
+              return {
+                loader: 'webpack-strip-block',
+                options: {
+                  start: 'develblock:start',
+                  end: 'develblock:end',
+                },
+              };
+            })(),
+          ].filter((data) => !!data),
         },
         {
           test: /\.module\.(scss|sass)$/,
           use: [
-            {
-              loader: ServerMiniCssExtractPlugin.loader,
-            },
-            // { loader: 'style-loader' }, // to inject the result into the DOM as a style block
+            (() => {
+              if (target === 'web' && (GENERATE_STYLE === 'inline' || SSR_TYPE === 'stream')) {
+                return { loader: 'style-loader' }; // to inject the result into the DOM as a style block
+              }
+
+              return {
+                loader: MiniCssExtractPlugin.loader,
+              };
+            })(),
             {
               loader: 'css-loader',
               options: { importLoaders: 1, modules: true },
             }, // to convert the resulting CSS to Javascript to be bundled (modules:true to rename CSS classes in output to cryptic identifiers, except if wrapped in a :global(...) pseudo class)
             { loader: 'resolve-url-loader' },
             { loader: 'sass-loader' }, // to convert SASS to CSS
-          ],
+          ].filter((data) => !!data),
         },
       ],
     },
@@ -83,10 +113,21 @@ const getConfig = (target, env) => {
       extensions: ['.js', 'jsx', '.ts', '.tsx', '.css', '.scss'],
     },
 
-    plugins:
-      target === 'node'
-        ? [new ServerMiniCssExtractPlugin(), new LoadablePlugin()]
-        : [new ServerMiniCssExtractPlugin(), new LoadablePlugin(), new webpack.HotModuleReplacementPlugin()],
+    plugins: (() => {
+      if (target === 'node') {
+        return [new MiniCssExtractPlugin({ filename: outputStyleFileName }), new LoadablePlugin()];
+      }
+
+      // target === 'web'
+      if (NODE_ENV === DEFAULT_MODE) {
+        return [
+          new MiniCssExtractPlugin({ filename: outputStyleFileName }),
+          new LoadablePlugin(),
+          new webpack.HotModuleReplacementPlugin(),
+        ];
+      }
+      return [new MiniCssExtractPlugin({ filename: outputStyleFileName }), new LoadablePlugin()];
+    })(),
 
     externals: target === 'node' ? ['@loadable/component', nodeExternals()] : undefined,
   };

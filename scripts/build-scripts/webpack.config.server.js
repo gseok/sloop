@@ -7,7 +7,7 @@ const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
 module.exports = (env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '' } = env;
+  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', SSR_TYPE = 'stream', phase } = env;
 
   return {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
@@ -32,7 +32,19 @@ module.exports = (env) => {
       rules: [
         {
           test: /\.tsx?$/,
-          use: ['babel-loader', 'ts-loader'],
+          use: [
+            'babel-loader',
+            'ts-loader',
+            {
+              loader: 'string-replace-loader',
+              options: {
+                multiple: [
+                  { search: 'SSR_STREAM', replace: SSR_TYPE === 'stream' ? 'stream' : '' },
+                  { search: 'CURRENT_PHASE', replace: phase },
+                ],
+              },
+            },
+          ],
         },
       ],
     },
