@@ -9,6 +9,7 @@ import commonErrorHandler from './middlewares/commonErrorHandler';
 import pageNotFound from './middlewares/pageNotFound';
 import router from './routes';
 import { currentPhase } from './setting';
+import logger from './helpers/logger';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
@@ -64,12 +65,15 @@ app.use(pageNotFound);
 
 // server start
 app.listen(PORT, () => {
-  console.log(`Server is running at http://127.0.0.1:${PORT}`);
-  console.log('Press CTRL-C to stop');
+  logger.log('----------------------------------------------------------');
+  logger.log(`Server is running at http://127.0.0.1:${PORT}`);
+  logger.log('Press CTRL-C to stop');
+  logger.log('----------------------------------------------------------');
+  logger.log('Current Log Level is "LOG_LEVEL" Show follow Log Levels...');
+  logger.log('log...0');
+  logger.error('error...1');
+  logger.warn('warn....2');
+  logger.info('info....3');
+  logger.debug('debug...4');
+  logger.log('----------------------------------------------------------');
 });
-
-// TODOS
-// 1. real build시 extract한 css을 하나의 위치로 나오게 변경(build env optional로 구동되게함)
-// 3. 서버 logger 도입 필요, 일단 logger로 만들고, Nelo는 차후 연결(별도이슈로)
-// 5. 빌드 스크립트를 wrap 하여 좀더 간략하게 변경 필요 webpack을 programing형태로 구동
-// 6. real의 css extract의 이름에 hash 추가 & css을 single file화 하는 방법 연구

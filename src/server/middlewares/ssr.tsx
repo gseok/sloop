@@ -5,6 +5,7 @@ import { StaticRouter } from 'react-router';
 import { renderToNodeStream, renderToString } from 'react-dom/server';
 import { ChunkExtractor } from '@loadable/server';
 import { useSSRStream } from '../setting';
+import logger from '../helpers/logger';
 
 const ssr: Middleware = async (ctx: Context) => {
   const nodeStats = path.resolve(__dirname, '../client/node/loadable-stats.json');
@@ -22,7 +23,7 @@ const ssr: Middleware = async (ctx: Context) => {
   const useStream = useSSRStream;
 
   if (useStream) {
-    console.log('stream.....');
+    logger.log('SSR > stream.....');
     ctx.status = 200; // ssr response status
     ctx.respond = false; // use stream
     const htmlStream = renderToNodeStream(jsx);
@@ -52,7 +53,7 @@ const ssr: Middleware = async (ctx: Context) => {
       ctx.res.end();
     });
   } else {
-    console.log('string...!!!!!');
+    logger.log('SSR > string...!!!!!');
     const html = renderToString(jsx);
     const template = `
       <!DOCTYPE html>
