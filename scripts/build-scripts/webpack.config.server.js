@@ -7,12 +7,19 @@ const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
 module.exports = (env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', SSR_TYPE = 'stream', LOG_LEVEL = 'error', phase } = env;
+  // eslint-disable-next-line prettier/prettier
+  const {
+    NODE_ENV = DEFAULT_MODE,
+    GENERATE_SOURCEMAP = '',
+    SSR_TYPE = 'stream',
+    LOG_LEVEL = 'error',
+    USE_LOADABLE = 'on',
+    phase,
+  } = env;
 
   return {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
     devtool: GENERATE_SOURCEMAP,
-    // watch: BUILD_WATCH === 'on',
 
     target: 'node',
     node: {
@@ -40,6 +47,7 @@ module.exports = (env) => {
               options: {
                 multiple: [
                   { search: 'SSR_STREAM', replace: SSR_TYPE === 'stream' ? 'stream' : '' },
+                  { search: 'LOADABLE', replace: USE_LOADABLE },
                   { search: 'CURRENT_PHASE', replace: phase },
                   { search: 'LOG_LEVEL', replace: LOG_LEVEL, flags: 'g' },
                 ],

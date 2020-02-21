@@ -14,15 +14,15 @@ const rootPath = path.resolve(__dirname, '..', '..');
 const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
-const getEntry = (target, mode, useHash) => {
+const getEntry = ({ target, mode, useHash, useLoadsble }) => {
   if (target === 'node') {
-    return [path.resolve(rootPath, 'src/client/App.tsx')];
+    return [path.resolve(rootPath, `src/client/App${!useLoadsble ? 'NotLoadable' : ''}.tsx`)];
   }
 
   if (mode === DEFAULT_MODE && !useHash) {
-    return [hotMiddlewareScript, path.resolve(rootPath, 'src/client/index.tsx')];
+    return [hotMiddlewareScript, path.resolve(rootPath, `src/client/index${!useLoadsble ? 'NotLoadable' : ''}.tsx`)];
   }
-  return [path.resolve(rootPath, 'src/client/index.tsx')];
+  return [path.resolve(rootPath, `src/client/index${!useLoadsble ? 'NotLoadable' : ''}.tsx`)];
 };
 
 const getConfig = (target, env) => {
@@ -32,6 +32,7 @@ const getConfig = (target, env) => {
     GENERATE_SOURCE_NAME = 'normal',
     GENERATE_STYLE = 'inline',
     SSR_TYPE = 'stream',
+    USE_LOADABLE = 'on',
     phase,
   } = env;
 
@@ -45,7 +46,12 @@ const getConfig = (target, env) => {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
     devtool: GENERATE_SOURCEMAP,
 
-    entry: getEntry(target, NODE_ENV, GENERATE_SOURCE_NAME === 'hash'),
+    entry: getEntry({
+      target,
+      mode: NODE_ENV,
+      useHash: GENERATE_SOURCE_NAME === 'hash',
+      useLoadsble: USE_LOADABLE === 'on',
+    }),
     output: {
       path: path.resolve(rootPath, 'dist/client', target),
       publicPath: '/',

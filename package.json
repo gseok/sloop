@@ -13,22 +13,25 @@
     "koa-send": "^5.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-redux": "^7.1.3",
+    "react-redux": "^7.2.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "redux": "^4.0.5",
     "regenerator-runtime": "^0.13.3",
+    "typesafe-actions": "^5.1.0",
     "winston": "^3.2.1"
   },
   "scripts": {
     "clear": "rm -rf dist",
+    "codelint": "eslint . --ext .ts --ext .tsx",
+    "codelint:fix": "eslint . --ext .ts --ext .tsx --fix",
     "start:local": "yarn build:local && yarn start:server:local-debug",
     "start:dev": "yarn build:dev && yarn start:server:local-debug",
     "start:test": "yarn build:test && yarn start:server",
     "start:real": "yarn build:real && yarn start:server",
-    "start:server": "node ./dist/server/server.js",
+    "start:server": "node startNginx.js && node ./dist/server/server.js",
+    "start:server:local-debug": "node startNginx.js && nodemon --inspect=9331 ./dist/server/server.js",
     "start:client:local-only": "webpack-dev-server --config ./scripts/build-scripts/webpack.config.js --env.target=client-only --env.phase=local --progress --profile --colors",
-    "start:server:local-debug": "nodemon --inspect ./dist/server/server.js",
     "build:local": "yarn clear && yarn build:client:local && yarn build:server:local",
     "build:dev": "yarn clear && yarn build:client:dev && yarn build:server:dev",
     "build:test": "yarn clear && yarn build:client:test && yarn build:server:test",
@@ -41,8 +44,7 @@
     "build:server:dev": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=dev --progress --profile --colors",
     "build:server:test": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=test --progress --profile --colors",
     "build:server:real": "webpack --config ./scripts/build-scripts/webpack.config.js --env.target=server --env.phase=real --progress --profile --colors",
-    "codelint": "eslint . --ext .ts --ext .tsx",
-    "codelint:fix": "eslint . --ext .ts --ext .tsx --fix"
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -52,6 +54,7 @@
     "@loadable/babel-plugin": "^5.12.0",
     "@loadable/webpack-plugin": "^5.12.0",
     "@types/axios": "^0.14.0",
+    "@types/jest": "^25.1.3",
     "@types/koa": "^2.11.0",
     "@types/koa-router": "^7.4.0",
     "@types/koa-send": "^4.1.2",
@@ -59,8 +62,10 @@
     "@types/loadable__server": "^5.9.1",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
+    "@types/react-redux": "^7.1.7",
     "@types/react-router": "^5.1.4",
     "@types/react-router-dom": "^5.1.3",
+    "@types/supertest": "^2.0.8",
     "@types/webpack-env": "^1.15.1",
     "@types/webpack-hot-middleware": "^2.25.0",
     "@typescript-eslint/eslint-plugin": "^2.19.0",
@@ -81,15 +86,19 @@
     "express-to-koa": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^4.2.1",
+    "jest": "^25.1.0",
     "mini-css-extract-plugin": "^0.9.0",
     "node-sass": "^4.13.1",
     "nodemon": "^2.0.2",
     "open": "^7.0.2",
     "prettier": "^1.19.1",
+    "redux-devtools-extension": "^2.13.8",
     "resolve-url-loader": "^3.1.1",
     "sass-loader": "^8.0.2",
     "string-replace-loader": "^2.2.0",
     "style-loader": "^1.1.3",
+    "supertest": "^4.0.2",
+    "ts-jest": "^25.2.1",
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.5",
     "webpack": "^4.41.5",
@@ -108,5 +117,22 @@
       "pre-commit": "yarn codelint",
       "pre-push": "yarn codelint:fix"
     }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "collectCoverageFrom": [
+      "**/*.api.{ts,js}",
+      "!**/node_modules/**",
+      "!**/build/**",
+      "!**/coverage/**"
+    ],
+    "collectCoverage": true,
+    "coverageReporters": [
+      "text",
+      "text-summary"
+    ]
   }
 }

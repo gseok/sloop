@@ -2,27 +2,39 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { loadableReady } from '@loadable/component';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import appReducer from '../shared/redux/reducers/reducers';
 
 import App from './App';
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    __PRELOADED_STATE__: any;
+  }
+}
+
+// Grab the state from a global variable injected into the server-generated HTML
+const preloadedState = window.__PRELOADED_STATE__;
+// Allow the passed state to be garbage-collected
+delete window.__PRELOADED_STATE__;
+// Create Redux store with initial state
+const store = createStore(appReducer, preloadedState);
+
 // client only run has module.hot
 const rootElement = document.getElementById('root');
-if (module.hot) {
-  ReactDOM.render(
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>,
-    rootElement,
-  );
-
-  module.hot.accept();
-} else {
-  loadableReady(() => {
-    ReactDOM.hydrate(
+loadableReady(() => {
+  ReactDOM.hydrate(
+    <Provider store={store}>
       <BrowserRouter>
         <App />
-      </BrowserRouter>,
-      rootElement,
-    );
-  });
+      </BrowserRouter>
+    </Provider>,
+    rootElement,
+  );
+});
+
+if (module.hot) {
+  module.hot.accept();
 }

@@ -15,7 +15,7 @@ module.exports = (env) => {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
     devtool: GENERATE_SOURCEMAP,
 
-    entry: path.resolve(rootPath, 'src/client/index.tsx'),
+    entry: path.resolve(rootPath, 'src/client/indexNoneSSR.tsx'),
     output: {
       path: path.resolve(rootPath, 'dist/client'),
       filename: '[name].js',

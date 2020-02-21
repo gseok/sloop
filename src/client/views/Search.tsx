@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import RoutesPath from '../models/RoutesPath.model';
@@ -5,7 +6,7 @@ import Loading from '../components/Loading';
 import getSearchApi from '../api/getSearch.api';
 import getGeoCodeApi from '../api/getGeoCode.api';
 
-const Home = () => {
+const Search = () => {
   const internalApiCall = useCallback(async () => {
     const res0 = await getGeoCodeApi();
     const res1 = await getGeoCodeApi('local');
@@ -42,4 +43,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Search;
