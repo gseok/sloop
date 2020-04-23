@@ -9,7 +9,7 @@ const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
 module.exports = (env) => {
-  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', phase } = env;
+  const { NODE_ENV = DEFAULT_MODE, GENERATE_SOURCEMAP = '', USE_REDUX_DEV_TOOLS = 'false', phase } = env;
 
   return {
     mode: NODE_ENV === DEFAULT_MODE || NODE_ENV === PRODUCTION_MODE ? NODE_ENV : DEFAULT_MODE,
@@ -52,7 +52,10 @@ module.exports = (env) => {
             {
               loader: 'string-replace-loader',
               options: {
-                multiple: [{ search: 'CURRENT_PHASE', replace: phase }],
+                multiple: [
+                  { search: 'CURRENT_PHASE', replace: phase },
+                  { search: 'USE_REDUX_DEV_TOOLS', replace: USE_REDUX_DEV_TOOLS },
+                ],
               },
             },
             (() => {

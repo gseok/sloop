@@ -8,6 +8,7 @@
 # environment
 /.env
 .env
+.nginx.pid
 
 # dependencies
 /node_modules

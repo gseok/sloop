@@ -14,6 +14,7 @@ module.exports = (env) => {
     SSR_TYPE = 'stream',
     LOG_LEVEL = 'error',
     USE_LOADABLE = 'on',
+    USE_REDUX_DEV_TOOLS = 'false',
     phase,
   } = env;
 
@@ -50,6 +51,7 @@ module.exports = (env) => {
                   { search: 'LOADABLE', replace: USE_LOADABLE },
                   { search: 'CURRENT_PHASE', replace: phase },
                   { search: 'LOG_LEVEL', replace: LOG_LEVEL, flags: 'g' },
+                  { search: 'USE_REDUX_DEV_TOOLS', replace: USE_REDUX_DEV_TOOLS },
                 ],
               },
             },

@@ -14,15 +14,15 @@ const rootPath = path.resolve(__dirname, '..', '..');
 const DEFAULT_MODE = 'development';
 const PRODUCTION_MODE = 'production';
 
-const getEntry = ({ target, mode, useHash, useLoadsble }) => {
+const getEntry = ({ target, mode, useHash, useLoadable }) => {
   if (target === 'node') {
-    return [path.resolve(rootPath, `src/client/App${!useLoadsble ? 'NotLoadable' : ''}.tsx`)];
+    return [path.resolve(rootPath, `src/client/App${!useLoadable ? 'NotLoadable' : ''}.tsx`)];
   }
 
   if (mode === DEFAULT_MODE && !useHash) {
-    return [hotMiddlewareScript, path.resolve(rootPath, `src/client/index${!useLoadsble ? 'NotLoadable' : ''}.tsx`)];
+    return [hotMiddlewareScript, path.resolve(rootPath, `src/client/index${!useLoadable ? 'NotLoadable' : ''}.tsx`)];
   }
-  return [path.resolve(rootPath, `src/client/index${!useLoadsble ? 'NotLoadable' : ''}.tsx`)];
+  return [path.resolve(rootPath, `src/client/index${!useLoadable ? 'NotLoadable' : ''}.tsx`)];
 };
 
 const getConfig = (target, env) => {
@@ -32,7 +32,10 @@ const getConfig = (target, env) => {
     GENERATE_SOURCE_NAME = 'normal',
     GENERATE_STYLE = 'inline',
     SSR_TYPE = 'stream',
-    USE_LOADABLE = 'on',
+    USE_LOADABLE,
+    USE_REDUX_DEV_TOOLS,
+    useLoadable,
+    useReduxDevTools,
     phase,
   } = env;
 
@@ -50,7 +53,7 @@ const getConfig = (target, env) => {
       target,
       mode: NODE_ENV,
       useHash: GENERATE_SOURCE_NAME === 'hash',
-      useLoadsble: USE_LOADABLE === 'on',
+      useLoadable: USE_LOADABLE === 'on' || useLoadable === 'on',
     }),
     output: {
       path: path.resolve(rootPath, 'dist/client', target),
@@ -77,7 +80,10 @@ const getConfig = (target, env) => {
             {
               loader: 'string-replace-loader',
               options: {
-                multiple: [{ search: 'CURRENT_PHASE', replace: phase }],
+                multiple: [
+                  { search: 'CURRENT_PHASE', replace: phase },
+                  { search: 'USE_REDUX_DEV_TOOLS', replace: USE_REDUX_DEV_TOOLS || useReduxDevTools || 'false' },
+                ],
               },
             },
             (() => {

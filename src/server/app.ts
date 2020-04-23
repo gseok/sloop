@@ -9,7 +9,7 @@ import ssrFetch from './middlewares/ssrFetch';
 import commonErrorHandler from './middlewares/commonErrorHandler';
 import pageNotFound from './middlewares/pageNotFound';
 import router from './routes';
-import { currentPhase, useLoadable } from './setting';
+import { currentPhase, useLoadable, useReduxDevTools } from './setting';
 
 const PORT = 3131;
 const app: Koa = new Koa();
@@ -18,12 +18,16 @@ const app: Koa = new Koa();
 if (process.env.NODE_ENV === 'development') {
   console.log('Server started development!, Client build...');
 
-  const webpack = require('webpack');
-  const webpackConfig = require('../../scripts/build-scripts/webpack.config.client.js')({
+  const appEnv = {
     ...process.env,
     phase: currentPhase,
-    USE_LOADABLE: useLoadable,
-  });
+    useLoadable,
+    useReduxDevTools,
+  };
+
+  const webpack = require('webpack');
+  const webpackConfigFn = require('../../scripts/build-scripts/webpack.config.client.js');
+  const webpackConfig = webpackConfigFn(appEnv);
   const compiler = webpack(webpackConfig);
 
   const e2k = require('express-to-koa');

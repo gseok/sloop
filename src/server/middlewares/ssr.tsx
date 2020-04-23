@@ -6,10 +6,12 @@ import React from 'react';
 import { StaticRouter } from 'react-router';
 import { renderToNodeStream, renderToString } from 'react-dom/server';
 import { ChunkExtractor } from '@loadable/server';
-import { createStore } from 'redux';
+import { compose, createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
+import thunkMiddleware from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import appReducer from '../../shared/redux/reducers/reducers';
-import { useSSRStream } from '../setting';
+import { useSSRStream, useReduxDevTools } from '../setting';
 import logger from '../helpers/logger';
 
 const ssr: Middleware = async (ctx: Context, next: Next) => {
@@ -21,11 +23,15 @@ const ssr: Middleware = async (ctx: Context, next: Next) => {
 
   // redux for ssr
   logger.debug('Server Side Init Data: ', ctx.state);
-  const store = createStore(appReducer, {
+  const preloadedState = {
     Sample1Reducer: { number: ctx.state.serverFetchedData.number1 },
     Sample2Reducer: { number: ctx.state.serverFetchedData.number2 },
-  });
-  const preloadedState = store.getState(); // Grab the initial state from our Redux store
+  };
+  const composeEnhancers = ((useDevTool) => {
+    if (useDevTool === 'true') return composeWithDevTools({ trace: true });
+    return compose;
+  })(useReduxDevTools);
+  const store = createStore(appReducer, preloadedState, composeEnhancers(applyMiddleware(thunkMiddleware)));
 
   const jsx = webExtractor.collectChunks(
     <Provider store={store}>
